@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Api\v1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\V1\InvoiceResource;
+use App\Models\Invoices;
 use Illuminate\Http\Request;
-
+use App\Http\Resources\V1\InvoiceResourceCollection;
 class InvoiceController extends Controller
 {
     /**
@@ -12,7 +14,7 @@ class InvoiceController extends Controller
      */
     public function index()
     {
-        //
+        return new InvoiceResourceCollection(Invoices::with('user')->get());
     }
 
     /**
@@ -36,7 +38,7 @@ class InvoiceController extends Controller
      */
     public function show(string $id)
     {
-        //
+        return new InvoiceResource(Invoices::where('id', $id)->first());
     }
 
     /**
