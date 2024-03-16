@@ -35,8 +35,8 @@ class InvoiceController extends Controller
             'value' => 'required|numeric|between:1,9999.99'
         ]);
 
-        if($validator->fails()){
-            return $this-> errors('Data Invalid', 422, $validator->errors());
+        if ($validator->fails()) {
+            return $this->error('Data Invalid', 422, $validator->errors());
         }
     }
 
