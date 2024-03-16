@@ -63,7 +63,26 @@ class InvoiceController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required',
+            'type'=> 'required|max:1',
+            'paid'=> 'required|numeric|between:0,1',
+            'value' => 'required|numeric',
+            'payment_date' => 'nullable|date_format:Y-m-d H-i-s'
+        ]);
+
+        if ($validator->fails()) {
+            return $this->error('Validation Failed', 422, $validator->errors());
+        }
+
+        $validated = $validator->validated();
+
+        $updated = Invoices::find($id)->update([
+            'user_id' => $validated['user_id'],
+            'type'=> $validated['type'],
+            'paid'=> $validated['paid'],
+            'value'=> $validated['value'],
+        ]);
     }
 
     /**
