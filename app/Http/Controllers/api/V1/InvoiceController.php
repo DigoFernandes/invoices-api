@@ -38,6 +38,12 @@ class InvoiceController extends Controller
         if ($validator->fails()) {
             return $this->error('Data Invalid', 422, $validator->errors());
         }
+
+        $created = Invoices::create($validator->validated());
+
+        if($created){
+            return $this->response('Invoice Created', 200, $created);
+        }
     }
 
     /**
