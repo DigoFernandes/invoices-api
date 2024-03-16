@@ -11,7 +11,9 @@ use Illuminate\Support\Facades\Route;
 // });
 Route::prefix('v1')->group(function () {
     Route::get('/invoices', [InvoiceController::class, 'index']);
-    Route::get('/invoices/{invoice}', [UserController::class, 'show']);
+    Route::post('/invoices', [InvoiceController::class, 'store']);
+    Route::get('/invoices/{invoice}', [InvoiceController::class, 'show']);
+    Route::get('/invoices/{invoice}', [InvoiceController::class, 'store']);
 
 
     Route::get('/users', [UserController::class, 'index']);
