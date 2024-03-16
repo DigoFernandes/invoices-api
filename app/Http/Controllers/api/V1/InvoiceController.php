@@ -9,6 +9,7 @@ use App\Traits\HttpResponses;
 use Illuminate\Http\Request;
 use App\Http\Resources\V1\InvoiceResourceCollection;
 use Illuminate\Support\Facades\Validator;
+
 class InvoiceController extends Controller
 {
     use HttpResponses;
@@ -27,7 +28,7 @@ class InvoiceController extends Controller
      */
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), rules:[
+        $validator = Validator::make($request->all(), rules: [
             'user_id' => 'required',
             'type' => 'required|max:1',
             'paid' => 'required|numeric|between:0,1',
@@ -42,11 +43,11 @@ class InvoiceController extends Controller
         $created = Invoices::create($validator->validated());
 
         //o ->load() é utilizado para fazer uma chamada de um relacionamento. Ou seja, não poderia colocar with('id") pois não acharia a relação.
-        if($created){
+        if ($created) {
             return $this->response('Invoice Created', 200, new InvoiceResource($created->load('user')));
         }
-        
-        return $this->error('Something Went Wrong',400);
+
+        return $this->error('Something Went Wrong', 400);
     }
 
     /**
@@ -65,10 +66,11 @@ class InvoiceController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'user_id' => 'required',
-            'type'=> 'required|max:1',
-            'paid'=> 'required|numeric|between:0,1',
+            'type' => 'required|max:1',
+            'paid' => 'required|numeric|between:0,1',
             'value' => 'required|numeric',
-            'payment_date' => 'nullable|date_format:Y-m-d H-i-s'
+            'payment_date' => 'nullable|date_format:Y-m-d H:i:s',
+
         ]);
 
         if ($validator->fails()) {
@@ -77,12 +79,25 @@ class InvoiceController extends Controller
 
         $validated = $validator->validated();
 
-        $updated = Invoices::find($id)->update([
-            'user_id' => $validated['user_id'],
-            'type'=> $validated['type'],
-            'paid'=> $validated['paid'],
-            'value'=> $validated['value'],
-        ]);
+        $invoice = Invoices::find($id);
+
+        if (!$invoice) {
+            return $this->error('Invoice not found', 404);
+        }
+
+        $invoice->user_id = $validated['user_id'];
+        $invoice->type = $validated['type'];
+        $invoice->paid = $validated['paid'];
+        $invoice->value = $validated['value'];
+        $invoice->payment_date = $validated['paid'] ? $validated['payment_date'] : null;
+
+        $updated = $invoice->save();
+
+        if ($updated) {
+            return $this->response('Invoice updated', 200, new InvoiceResource($invoice->load('user')));
+        }
+
+        return $this->error('Invoice not updated', 400);
     }
 
     /**
