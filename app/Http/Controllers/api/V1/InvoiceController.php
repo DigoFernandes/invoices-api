@@ -41,9 +41,12 @@ class InvoiceController extends Controller
 
         $created = Invoices::create($validator->validated());
 
+        //o ->load() é utilizado para fazer uma chamada de um relacionamento. Ou seja, não poderia colocar with('id") pois não acharia a relação.
         if($created){
-            return $this->response('Invoice Created', 200, $created);
+            return $this->response('Invoice Created', 200, new InvoiceResource($created->load('user')));
         }
+        
+        return $this->error('Something Went Wrong',400);
     }
 
     /**
